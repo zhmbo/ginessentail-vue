@@ -44,6 +44,8 @@
 <script>
 import { required, minLength } from 'vuelidate/lib/validators';
 import customValidator from '@/helper/validator';
+import storageService from '@/service/storageService';
+import userService from '@/service/userService';
 
 export default {
   data() {
@@ -78,6 +80,33 @@ export default {
       return $dirty ? !$error : null;
     },
     register() {
+      // 验证数据
+      this.$v.user.$touch();
+      if (this.$v.user.$anyError) {
+        return;
+      }
+      // 请求
+      userService.register(this.user).then((res) => {
+        // 保存 token
+        storageService.set(storageService.USER_TOKEN, res.data.data.token);
+
+        userService.info().then((response) => {
+          // 保存用户信息
+          storageService.set(storageService.USER_INFO, JSON.stringify(response.data.data.user));
+          // 跳转主页
+          this.$router.replace({ name: 'Home' });
+        }).catch((err) => {
+          console.log('err:', err.response.data.msg);
+        });
+      }).catch((err) => {
+        console.log('err:', err.response.data.msg);
+        this.$bvToast.toast(err.response.data.msg, {
+          title: '数据验证错误',
+          toaster: 'b-toaster-top-center',
+          variant: 'danger',
+          solid: true,
+        });
+      });
       console.log('register did click');
     },
   },
