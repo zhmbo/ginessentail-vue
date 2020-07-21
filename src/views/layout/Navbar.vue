@@ -43,14 +43,12 @@
   </div>
 </template>
 <script>
-import storageService from '@/service/storageService';
+import { mapState } from 'vuex';
 
 export default {
-  computed: {
-    userInfo() {
-      return JSON.parse(storageService.get(storageService.USER_INFO));
-    },
-  },
+  computed: mapState({
+    userInfo: (state) => state.userModule.userInfo,
+  }),
 };
 </script>>
   <style lang="scss" scoped>
