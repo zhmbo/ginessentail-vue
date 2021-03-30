@@ -90,7 +90,6 @@ export default {
         // 跳转主页
         this.$router.replace({ name: 'Home' });
       }).catch((err) => {
-        console.log('err:', err.response.data.msg);
         this.$bvToast.toast(err.response.data.msg, {
           title: '数据验证错误',
           toaster: 'b-toaster-top-center',

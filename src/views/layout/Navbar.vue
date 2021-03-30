@@ -4,51 +4,55 @@
               type="dark"
               variant="info">
       <b-container>
-        <b-navbar-brand @click="$router.push({name: 'Home'})">Jumbo</b-navbar-brand>
+        <b-navbar-brand @click="$router.push({name: 'Home'})">Jumbo博客网</b-navbar-brand>
 
-        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-        <b-collapse id="nav-collapse"
-                    is-nav>
-          <!-- <b-navbar-nav>
-          <b-nav-item href="#">Link</b-nav-item>
-          <b-nav-item href="#" disabled>Disabled</b-nav-item>
-        </b-navbar-nav> -->
-
-          <!-- Right aligned nav items -->
-          <b-navbar-nav class="ml-auto">
-            <!-- <b-nav-form>
-            <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-            <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-          </b-nav-form> -->
-
-            <b-nav-item-dropdown right
-                                 v-if="userInfo">
-              <template v-slot:button-content>
-                <em>{{userInfo.name}}</em>
-              </template>
-              <b-dropdown-item href="#">个人主页</b-dropdown-item>
-              <b-dropdown-item href="#">登出</b-dropdown-item>
-            </b-nav-item-dropdown>
-            <div v-if="!userInfo">
-              <b-nav-item v-if="$route.name != 'login'"
-                          @click="$router.replace({name: 'login'})">登录</b-nav-item>
-              <b-nav-item v-if="$route.name != 'register'"
-                          @click="$router.replace({name: 'register'})">注册</b-nav-item>
-            </div>
-          </b-navbar-nav>
-        </b-collapse>
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item v-if="userInfo"
+                      @click="$router.push({name: 'profile'})">{{userInfo.name}}</b-nav-item>
+          <div v-if="!userInfo">
+            <b-nav-item v-if="$route.name != 'login'"
+                        @click="$router.replace({name: 'login'})">登录</b-nav-item>
+            <b-nav-item v-if="$route.name == 'login'"
+                        @click="$router.replace({name: 'register'})">注册</b-nav-item>
+          </div>
+        </b-navbar-nav>
+        <a-button type="primary"
+                  v-if="userInfo&&$route.name != 'BlogEdit'"
+                  @click="createBlog"> 新建文章 </a-button>
       </b-container>
     </b-navbar>
   </div>
 </template>
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
+import blogService from '@/service/blogService';
 
 export default {
   computed: mapState({
     userInfo: (state) => state.userModule.userInfo,
   }),
+
+  data() {
+    return {
+      blog: {
+        category_id: 12,
+        title: '文章标题',
+        content: '文章内容',
+      },
+    };
+  },
+
+  methods: {
+    ...mapActions('userModule', { logout: 'logout' }),
+    createBlog() {
+      blogService.createBlog(this.blog).then((res) => {
+        console.log(res.data.data.post);
+        this.$router.push({ name: 'BlogEdit', params: { id: res.data.data.post.id } });
+      }).catch((err) => {
+        console.log('err:', err.response.data.msg);
+      });
+    },
+  },
 };
 </script>>
   <style lang="scss" scoped>
